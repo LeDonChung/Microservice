@@ -12,8 +12,8 @@ public class GatewayConfig {
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
-//                .route("user-service", r -> r.path("/api/v1/user/**")
-//                        .uri("lb://user-service"))
+                .route("product-service", r -> r.path("/api/v1/product/**")
+                        .uri("lb://product-service"))
                 .build();
     }
 }
