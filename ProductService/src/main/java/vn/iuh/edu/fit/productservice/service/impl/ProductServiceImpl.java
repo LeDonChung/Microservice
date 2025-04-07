@@ -58,4 +58,14 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
+
+    @Override
+    public Product decrement(Long id, int quantity) {
+        Product product = productRepository.findById(id).orElse(null);
+        if (product != null) {
+            product.setQuantity(product.getQuantity() - quantity);
+            return productRepository.save(product);
+        }
+        return null;
+    }
 }
