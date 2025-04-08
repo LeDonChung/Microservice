@@ -12,12 +12,12 @@ public class GatewayConfig {
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("product-service", r -> r.path("/api/v1/product/**")
-                        .uri("lb://product-service"))
-                .route("customer-service", r -> r.path("/api/v1/customer/**")
-                        .uri("lb://customer-service"))
-                .route("order-service", r -> r.path("/api/v1/order/**")
-                        .uri("lb://order-service"))
+                .route("product-mc-service", r -> r.path("/api/v1/product/**")
+                        .uri("lb://product-mc-service"))
+                .route("customer-mc-service", r -> r.path("/api/v1/customer/**")
+                        .uri("lb://customer-mc-service"))
+                .route("order-mc-service", r -> r.path("/api/v1/order/**")
+                        .uri("lb://order-mc-service"))
                 .build();
     }
 }

@@ -1,0 +1,136 @@
+services:
+  discovery-mc-service:
+    build: ./DiscoveryService
+    container_name: discovery-mc-service
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_APPLICATION_NAME=discovery-mc-service
+      - SERVER_PORT=8761
+    networks:
+      - my-network
+
+  api-mc-gateway:
+    build: ./APIGateway
+    container_name: api-mc-gateway
+    depends_on:
+      - discovery-mc-service
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_APPLICATION_NAME=api-mc-gateway
+      - SERVER_PORT=8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-mc-service:8761/eureka/
+    networks:
+      - my-network
+
+   
+  customer-mc-service:
+    build: ./CustomerService
+    container_name: customer-mc-service
+    depends_on:
+      - discovery-mc-service
+      - mariadb-mc-customer
+    ports:
+      - "9091:9091"
+    environment:
+      - SPRING_APPLICATION_NAME=customer-mc-service
+      - SERVER_PORT=9091
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-mc-service:8761/eureka
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.mariadb.jdbc.Driver
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb-mc-customer:3306/mccustomer
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    networks:
+      - my-network
+
+  mariadb-mc-customer:
+    image: mariadb:latest
+    container_name: mariadb-mc-customer
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mccustomer
+    ports:
+      - "3301:3306"
+    volumes:
+      - mariadb-mc-customer-data:/var/lib/mysql
+    networks:
+      - my-network
+
+  product-mc-service:
+    build: ./ProductService
+    container_name: product-mc-service
+    depends_on:
+      - discovery-mc-service
+      - mariadb-mc-product
+    ports:
+      - "9090:9090"
+    environment:
+      - SPRING_APPLICATION_NAME=product-mc-service
+      - SERVER_PORT=9090
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-mc-service:8761/eureka
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.mariadb.jdbc.Driver
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb-mc-product:3306/mcproduct
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    networks:
+      - my-network
+
+  mariadb-mc-product:
+    image: mariadb:latest
+    container_name: mariadb-mc-product
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mcproduct
+    ports:
+      - "3302:3306"
+    volumes:
+      - mariadb-mc-product-data:/var/lib/mysql
+    networks:
+      - my-network
+
+  order-mc-service:
+    build: ./OrderService
+    container_name: order-mc-service
+    depends_on:
+      - discovery-mc-service
+      - mariadb-mc-order
+    ports:
+      - "9092:9092"
+    environment:
+      - SPRING_APPLICATION_NAME=order-mc-service
+      - SERVER_PORT=9092
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-mc-service:8761/eureka
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.mariadb.jdbc.Driver
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb-mc-order:3306/mcorder
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    networks:
+      - my-network
+
+  mariadb-mc-order:
+    image: mariadb:latest
+    container_name: mariadb-mc-order
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mcorder
+    ports:
+      - "3303:3306"
+    volumes:
+      - mariadb-mc-order-data:/var/lib/mysql
+    networks:
+      - my-network
+volumes:
+  mariadb-mc-customer-data:
+  mariadb-mc-product-data:
+  mariadb-mc-order-data:
+
+networks:
+  my-network:
+    driver: bridge
